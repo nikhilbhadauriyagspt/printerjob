@@ -8,6 +8,7 @@ import { connectDB, sequelize } from './config/db.js';
 import bcrypt from 'bcryptjs';
 
 // Models
+import Admin from './models/admin.model.js';
 import Candidate from './models/candidate.model.js';
 import Company from './models/company.model.js';
 import OTP from './models/otp.model.js';
