@@ -209,7 +209,18 @@ const startServer = async () => {
 
         // Final Sync (Safe with Foreign Key Checks disabled during creation)
         await sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
-        await sequelize.sync(); 
+        try {
+            await sequelize.sync(); 
+        } catch (syncErr) {
+            console.error("SEQUELIZE SYNC FAILED DETAILED ERROR:");
+            console.error("Message:", syncErr.message);
+            if (syncErr.original) {
+                console.error("Original SQL Error:", syncErr.original.message);
+                console.error("SQL Code:", syncErr.original.code);
+                console.error("SQL Query:", syncErr.original.sql);
+            }
+            throw syncErr;
+        }
         await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
         console.log('Database synced successfully');
 

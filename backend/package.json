@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon index.js",
-    "start": "node test_db_sync.js",
+    "start": "node index.js",
     "build": "echo 'No build step required'"
   },
   "keywords": [],
