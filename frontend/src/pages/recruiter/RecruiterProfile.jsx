@@ -26,7 +26,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
-const API_BASE = "http://localhost:8000/api/v1";
+const API_BASE = "https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1";
 
 const RecruiterProfile = () => {
     const navigate = useNavigate();

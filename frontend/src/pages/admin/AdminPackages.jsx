@@ -36,7 +36,7 @@ const AdminPackages = () => {
 
     const fetchPackages = async () => {
         try {
-            const res = await axios.get("http://localhost:8000/api/v1/admin/packages", { withCredentials: true });
+            const res = await axios.get("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/packages", { withCredentials: true });
             if (res.data.success) setPackages(res.data.packages);
         } catch (error) {
             toast.error("Failed to load packages");
@@ -74,7 +74,7 @@ const AdminPackages = () => {
     const handleDelete = async (id) => {
         if (!window.confirm("Are you sure?")) return;
         try {
-            const res = await axios.delete(`http://localhost:8000/api/v1/admin/packages/${id}`, { withCredentials: true });
+            const res = await axios.delete(`https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/packages/${id}`, { withCredentials: true });
             if (res.data.success) {
                 toast.success(res.data.message);
                 fetchPackages();
@@ -87,8 +87,8 @@ const AdminPackages = () => {
         try {
             setSubmitting(true);
             const res = isEditing 
-                ? await axios.put(`http://localhost:8000/api/v1/admin/packages/${editId}`, formData, { withCredentials: true })
-                : await axios.post("http://localhost:8000/api/v1/admin/packages", formData, { withCredentials: true });
+                ? await axios.put(`https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/packages/${editId}`, formData, { withCredentials: true })
+                : await axios.post("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/packages", formData, { withCredentials: true });
 
             if (res.data.success) {
                 toast.success(res.data.message);

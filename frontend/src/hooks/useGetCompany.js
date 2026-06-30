@@ -21,7 +21,7 @@ const useGetCompany = () => {
         const fetchCompany = async () => {
             dispatch(setLoading(true));
             try {
-                const res = await axios.get("http://localhost:8000/api/v1/company/me", {
+                const res = await axios.get("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/company/me", {
                     withCredentials: true
                 });
                 if (res.data.success) {

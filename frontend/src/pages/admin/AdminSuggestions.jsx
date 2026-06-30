@@ -52,7 +52,7 @@ const AdminSuggestions = () => {
     const fetchSuggestions = async () => {
         try {
             setLoading(true);
-            const res = await axios.get(`http://localhost:8000/api/v1/admin/suggestions?type=${activeTab}`, { withCredentials: true });
+            const res = await axios.get(`https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/suggestions?type=${activeTab}`, { withCredentials: true });
             if (res.data.success) {
                 setSuggestions(res.data.suggestions);
             }
@@ -72,7 +72,7 @@ const AdminSuggestions = () => {
         if (!singleItem.trim()) return;
         try {
             setSubmitting(true);
-            const res = await axios.post("http://localhost:8000/api/v1/admin/suggestions/add", {
+            const res = await axios.post("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/suggestions/add", {
                 type: activeTab,
                 name: singleItem
             }, { withCredentials: true });
@@ -97,7 +97,7 @@ const AdminSuggestions = () => {
 
         try {
             setSubmitting(true);
-            const res = await axios.post("http://localhost:8000/api/v1/admin/suggestions/bulk", {
+            const res = await axios.post("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/suggestions/bulk", {
                 type: activeTab,
                 items: itemsArray
             }, { withCredentials: true });

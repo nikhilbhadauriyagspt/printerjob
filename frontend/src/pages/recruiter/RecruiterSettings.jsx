@@ -15,7 +15,7 @@ import axios from 'axios';
 import { toast } from 'sonner';
 import { useSelector } from 'react-redux';
 
-const API_BASE = "http://localhost:8000/api/v1/company";
+const API_BASE = "https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/company";
 
 const RecruiterSettings = () => {
     const { user } = useSelector(store => store.auth);

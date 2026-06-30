@@ -19,7 +19,7 @@ import { useGoogleLogin } from '@react-oauth/google';
 import { useDispatch } from 'react-redux';
 import { setUser, setLoading as setAuthLoading } from '../../redux/authSlice';
 
-const COMPANY_API_END_POINT = "http://localhost:8000/api/v1/company";
+const COMPANY_API_END_POINT = "https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/company";
 
 const CompanyRegister = () => {
     const [step, setStep] = useState(1);

@@ -12,7 +12,7 @@ const AdminMessages = () => {
     useEffect(() => {
         const fetchChats = async () => {
             try {
-                const res = await axios.get("http://localhost:8000/api/v1/message/admin/chats", { withCredentials: true });
+                const res = await axios.get("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/message/admin/chats", { withCredentials: true });
                 if (res.data.success) setCompanies(res.data.companies);
             } catch (error) {
                 console.error("Chat list fail");

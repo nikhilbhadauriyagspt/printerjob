@@ -34,7 +34,7 @@ const RecruiterLogin = () => {
                     { headers: { Authorization: `Bearer ${tokenResponse.access_token}` } }
                 );
 
-                const res = await axios.post(`http://localhost:8000/api/v1/company/google-login`, {
+                const res = await axios.post(`https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/company/google-login`, {
                     idToken: tokenResponse.access_token,
                     userData: {
                         email: userInfo.data.email,
@@ -72,7 +72,7 @@ const RecruiterLogin = () => {
         e.preventDefault();
         try {
             dispatch(setLoading(true));
-            const res = await axios.post(`http://localhost:8000/api/v1/company/login`, input, {
+            const res = await axios.post(`https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/company/login`, input, {
                 headers: { 'Content-Type': 'application/json' },
                 withCredentials: true
             });

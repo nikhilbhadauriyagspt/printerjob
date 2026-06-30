@@ -50,14 +50,14 @@ const RecruiterLayout = () => {
     const fetchNotifications = async () => {
         try {
             if (!user) return;
-            const res = await axios.get("http://localhost:8000/api/v1/company/notifications", { withCredentials: true });
+            const res = await axios.get("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/company/notifications", { withCredentials: true });
             if (res.data.success) setNotifications(res.data.notifications);
         } catch (error) { console.error("Error fetching notifications"); }
     };
 
     const fetchProfile = async () => {
         try {
-            const res = await axios.get("http://localhost:8000/api/v1/company/me", { withCredentials: true });
+            const res = await axios.get("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/company/me", { withCredentials: true });
             if (res.data.success) {
                 setCompany(res.data.company);
                 setPlanStats(res.data.stats);
@@ -76,7 +76,7 @@ const RecruiterLayout = () => {
 
     const markAsRead = async (id) => {
         try {
-            await axios.put(`http://localhost:8000/api/v1/company/notifications/${id}/read`, {}, { withCredentials: true });
+            await axios.put(`https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/company/notifications/${id}/read`, {}, { withCredentials: true });
             fetchNotifications();
         } catch (error) {
             console.error("Error marking read");
@@ -85,7 +85,7 @@ const RecruiterLayout = () => {
 
     const logoutHandler = async () => {
         try {
-            const res = await axios.post("http://localhost:8000/api/v1/company/logout", {}, { withCredentials: true });
+            const res = await axios.post("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/company/logout", {}, { withCredentials: true });
             if (res.data.success) {
                 dispatch(setUser(null));
                 toast.success("Logged out successfully");

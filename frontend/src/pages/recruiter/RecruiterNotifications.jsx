@@ -23,7 +23,7 @@ const RecruiterNotifications = () => {
     const fetchNotifications = async () => {
         try {
             setLoading(true);
-            const res = await axios.get("http://localhost:8000/api/v1/company/notifications", { withCredentials: true });
+            const res = await axios.get("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/company/notifications", { withCredentials: true });
             if (res.data.success) {
                 setNotifications(res.data.notifications);
             }
@@ -40,7 +40,7 @@ const RecruiterNotifications = () => {
 
     const markAsRead = async (id) => {
         try {
-            await axios.put(`http://localhost:8000/api/v1/company/notifications/${id}/read`, {}, { withCredentials: true });
+            await axios.put(`https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/company/notifications/${id}/read`, {}, { withCredentials: true });
             setNotifications(notifications.map(n => n.id === id ? { ...n, isRead: true } : n));
         } catch (error) {
             console.error("Error marking read");

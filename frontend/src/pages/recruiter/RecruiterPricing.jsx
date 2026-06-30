@@ -21,8 +21,8 @@ const RecruiterPricing = () => {
         const fetchData = async () => {
             try {
                 const [pkgRes, statsRes] = await Promise.all([
-                    axios.get("http://localhost:8000/api/v1/company/packages", { withCredentials: true }),
-                    axios.get("http://localhost:8000/api/v1/company/me", { withCredentials: true })
+                    axios.get("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/company/packages", { withCredentials: true }),
+                    axios.get("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/company/me", { withCredentials: true })
                 ]);
 
                 if (pkgRes.data.success) setPackages(pkgRes.data.packages);
@@ -39,7 +39,7 @@ const RecruiterPricing = () => {
     const handleRecharge = async (pkg) => {
         try {
             setPurchasing(pkg.id);
-            const res = await axios.post("http://localhost:8000/api/v1/company/purchase/initiate", 
+            const res = await axios.post("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/company/purchase/initiate", 
                 { packageId: pkg.id }, 
                 { withCredentials: true }
             );
@@ -58,7 +58,7 @@ const RecruiterPricing = () => {
 
     const verifyPaymentOnBackend = async (paymentId, gateway) => {
         try {
-            const res = await axios.post("http://localhost:8000/api/v1/company/purchase/verify", {
+            const res = await axios.post("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/company/purchase/verify", {
                 packageId: selectedPackage.id,
                 paymentId: paymentId,
                 gateway: gateway

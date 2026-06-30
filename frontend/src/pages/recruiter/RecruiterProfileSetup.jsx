@@ -28,7 +28,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-const API_BASE = "http://localhost:8000/api/v1/company";
+const API_BASE = "https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/company";
 
 // Suggestions Data
 const INDUSTRIES = ["Technology", "Fintech", "Healthtech", "E-commerce", "Education", "Manufacturing", "Automobile", "Real Estate", "Logistics", "Marketing", "Consulting", "Retail", "Hospitality", "Media & Entertainment", "Cyber Security", "AI & Machine Learning"];
@@ -80,8 +80,8 @@ const RecruiterProfileSetup = () => {
         const fetchSuggestions = async () => {
             try {
                 const [indRes, desRes] = await Promise.all([
-                    axios.get("http://localhost:8000/api/v1/admin/suggestions?type=industry", { withCredentials: true }),
-                    axios.get("http://localhost:8000/api/v1/admin/suggestions?type=designation", { withCredentials: true })
+                    axios.get("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/suggestions?type=industry", { withCredentials: true }),
+                    axios.get("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/suggestions?type=designation", { withCredentials: true })
                 ]);
                 if (indRes.data.success) setIndustries(indRes.data.suggestions);
                 if (desRes.data.success) setDesignations(desRes.data.suggestions);

@@ -64,10 +64,10 @@ const RecruiterPostJob = () => {
         const fetchMetadata = async () => {
             try {
                 const [titles, inds, skls, compRes] = await Promise.all([
-                    axios.get("http://localhost:8000/api/v1/admin/suggestions?type=jobtitle"),
-                    axios.get("http://localhost:8000/api/v1/admin/suggestions?type=industry"),
-                    axios.get("http://localhost:8000/api/v1/admin/suggestions?type=skill"),
-                    axios.get("http://localhost:8000/api/v1/company/me", { withCredentials: true })
+                    axios.get("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/suggestions?type=jobtitle"),
+                    axios.get("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/suggestions?type=industry"),
+                    axios.get("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/suggestions?type=skill"),
+                    axios.get("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/company/me", { withCredentials: true })
                 ]);
                 setJobTitles(titles.data.suggestions);
                 setIndustries(inds.data.suggestions);
@@ -80,7 +80,7 @@ const RecruiterPostJob = () => {
         if (editJobId) {
             const fetchJob = async () => {
                 try {
-                    const res = await axios.get(`http://localhost:8000/api/v1/job/get/${editJobId}`);
+                    const res = await axios.get(`https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/job/get/${editJobId}`);
                     if (res.data.success) {
                         const job = res.data.job;
                         
@@ -144,8 +144,8 @@ const RecruiterPostJob = () => {
         try {
             isDraft ? setIsDraftLoading(true) : setLoading(true);
             const url = editJobId 
-                ? `http://localhost:8000/api/v1/job/update/${editJobId}` 
-                : "http://localhost:8000/api/v1/job/create";
+                ? `https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/job/update/${editJobId}` 
+                : "https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/job/create";
             
             const res = editJobId 
                 ? await axios.put(url, { ...formData, isDraft }, { withCredentials: true })

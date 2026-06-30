@@ -80,7 +80,7 @@ const AdminCompanies = () => {
     const handleOnboardSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post("http://localhost:8000/api/v1/admin/companies/onboard", onboardFormData, { withCredentials: true });
+            const res = await axios.post("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/companies/onboard", onboardFormData, { withCredentials: true });
             if (res.data.success) {
                 toast.success(res.data.message);
                 setShowOnboardModal(false);
@@ -106,7 +106,7 @@ const AdminCompanies = () => {
     const fetchBillingHistory = async (id) => {
         try {
             setBillingLoading(true);
-            const res = await axios.get(`http://localhost:8000/api/v1/admin/companies/${id}/billing`, { withCredentials: true });
+            const res = await axios.get(`https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/companies/${id}/billing`, { withCredentials: true });
             if (res.data.success) setBillingHistory(res.data.history);
         } catch (error) { console.error("Billing fail"); } finally { setBillingLoading(false); }
     };
@@ -114,7 +114,7 @@ const AdminCompanies = () => {
     const handleAssignPlan = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post(`http://localhost:8000/api/v1/admin/companies/${selectedCompany.id}/assign-plan`, planFormData, { withCredentials: true });
+            const res = await axios.post(`https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/companies/${selectedCompany.id}/assign-plan`, planFormData, { withCredentials: true });
             if (res.data.success) {
                 toast.success("Custom plan/credits assigned!");
                 setShowPlanForm(false);
@@ -127,7 +127,7 @@ const AdminCompanies = () => {
     const fetchCompanies = async () => {
         try {
             setLoading(true);
-            const res = await axios.get("http://localhost:8000/api/v1/admin/companies", { withCredentials: true });
+            const res = await axios.get("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/companies", { withCredentials: true });
             if (res.data.success) setCompanies(res.data.companies);
         } catch (error) { toast.error("Failed to fetch recruiters"); } finally { setLoading(false); }
     };
@@ -135,7 +135,7 @@ const AdminCompanies = () => {
     const fetchHistory = async (id) => {
         try {
             setHistoryLoading(true);
-            const res = await axios.get(`http://localhost:8000/api/v1/admin/companies/${id}/history`, { withCredentials: true });
+            const res = await axios.get(`https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/companies/${id}/history`, { withCredentials: true });
             if (res.data.success) setHistory(res.data.logs);
         } catch (error) { console.error("History fail"); } finally { setHistoryLoading(false); }
     };
@@ -143,7 +143,7 @@ const AdminCompanies = () => {
     const fetchCompanyJobs = async (id) => {
         try {
             setJobsLoading(true);
-            const res = await axios.get(`http://localhost:8000/api/v1/admin/companies/${id}/jobs`, { withCredentials: true });
+            const res = await axios.get(`https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/companies/${id}/jobs`, { withCredentials: true });
             if (res.data.success) setCompanyJobs(res.data.jobs);
         } catch (error) { console.error("Jobs fail"); } finally { setJobsLoading(false); }
     };
@@ -176,7 +176,7 @@ const AdminCompanies = () => {
 
     const toggleStatus = async (id, reason = '') => {
         try {
-            const res = await axios.put(`http://localhost:8000/api/v1/admin/companies/${id}/status`, { reason }, { withCredentials: true });
+            const res = await axios.put(`https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/companies/${id}/status`, { reason }, { withCredentials: true });
             if (res.data.success) {
                 toast.success(res.data.message);
                 fetchCompanies();

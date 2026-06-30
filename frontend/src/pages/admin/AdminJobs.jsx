@@ -24,7 +24,7 @@ const AdminJobs = () => {
     const fetchJobs = async () => {
         try {
             setLoading(true);
-            const res = await axios.get("http://localhost:8000/api/v1/admin/jobs", { withCredentials: true });
+            const res = await axios.get("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/jobs", { withCredentials: true });
             if (res.data.success) {
                 setJobs(res.data.jobs.filter(j => j.status !== 'draft'));
             }
@@ -38,7 +38,7 @@ const AdminJobs = () => {
     const fetchApplicants = async (jobId) => {
         try {
             setLoadingApplicants(true);
-            const res = await axios.get(`http://localhost:8000/api/v1/admin/jobs/${jobId}/applicants`, { withCredentials: true });
+            const res = await axios.get(`https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/jobs/${jobId}/applicants`, { withCredentials: true });
             if (res.data.success) {
                 setApplicants(res.data.applicants);
             }
@@ -65,7 +65,7 @@ const AdminJobs = () => {
 
         try {
             setActionLoading(true);
-            const res = await axios.post("http://localhost:8000/api/v1/job/admin/review", {
+            const res = await axios.post("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/job/admin/review", {
                 jobId,
                 action,
                 reason: action === 'reject' ? rejectReason : ""

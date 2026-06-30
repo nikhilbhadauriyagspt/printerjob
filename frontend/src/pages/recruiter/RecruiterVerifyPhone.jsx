@@ -30,7 +30,7 @@ const RecruiterVerifyPhone = () => {
         e.preventDefault();
         try {
             setLoading(true);
-            const res = await axios.post(`http://localhost:8000/api/v1/company/verify-phone-google`, {
+            const res = await axios.post(`https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/company/verify-phone-google`, {
                 phoneNumber,
                 otp
             }, { withCredentials: true });

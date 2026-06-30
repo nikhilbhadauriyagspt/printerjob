@@ -21,7 +21,7 @@ const AdminUsers = () => {
     const fetchCandidates = async () => {
         try {
             setLoading(true);
-            const res = await axios.get(`http://localhost:8000/api/v1/admin/candidates?search=${searchTerm}`, { withCredentials: true });
+            const res = await axios.get(`https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/candidates?search=${searchTerm}`, { withCredentials: true });
             if (res.data.success) {
                 setCandidates(res.data.candidates);
                 const active = res.data.candidates.filter(c => c.status === 'active').length;
@@ -38,7 +38,7 @@ const AdminUsers = () => {
     const fetchCandidateHistory = async (id) => {
         try {
             setLoadingHistory(true);
-            const res = await axios.get(`http://localhost:8000/api/v1/admin/candidates/${id}/applications`, { withCredentials: true });
+            const res = await axios.get(`https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/candidates/${id}/applications`, { withCredentials: true });
             if (res.data.success) {
                 setHistory(res.data.applications);
             }
@@ -63,7 +63,7 @@ const AdminUsers = () => {
 
     const toggleStatus = async (id) => {
         try {
-            const res = await axios.put(`http://localhost:8000/api/v1/admin/candidates/${id}/status`, {}, { withCredentials: true });
+            const res = await axios.put(`https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/candidates/${id}/status`, {}, { withCredentials: true });
             if (res.data.success) {
                 toast.success(res.data.message);
                 fetchCandidates();

@@ -50,7 +50,7 @@ const CandidateHeader = () => {
     const delayDebounceFn = setTimeout(async () => {
       if (navSearch.trim().length >= 1) {
         try {
-          const res = await axios.get(`http://localhost:8000/api/v1/admin/suggestions?type=jobtitle&query=${encodeURIComponent(navSearch.trim())}`);
+          const res = await axios.get(`https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/suggestions?type=jobtitle&query=${encodeURIComponent(navSearch.trim())}`);
           if (res.data.success) {
             setSearchSuggestions(res.data.suggestions);
           }

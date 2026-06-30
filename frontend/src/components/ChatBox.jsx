@@ -14,7 +14,7 @@ const ChatBox = ({ otherId, otherName, otherLogo, currentUserRole }) => {
 
     const fetchMessages = async () => {
         try {
-            const res = await axios.get(`http://localhost:8000/api/v1/message/chat/${otherId}?role=${currentUserRole}`, { withCredentials: true });
+            const res = await axios.get(`https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/message/chat/${otherId}?role=${currentUserRole}`, { withCredentials: true });
             if (res.data.success) {
                 setMessages(res.data.messages);
             }
@@ -42,7 +42,7 @@ const ChatBox = ({ otherId, otherName, otherLogo, currentUserRole }) => {
 
         try {
             setSending(true);
-            const res = await axios.post("http://localhost:8000/api/v1/message/send", {
+            const res = await axios.post("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/message/send", {
                 receiverId: otherId,
                 content: newMessage,
                 role: currentUserRole // 🟢 Pass role context

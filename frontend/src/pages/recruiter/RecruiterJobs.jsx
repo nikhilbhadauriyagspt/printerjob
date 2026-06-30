@@ -34,7 +34,7 @@ const RecruiterJobs = () => {
     const fetchJobs = async () => {
         try {
             setLoading(true);
-            const res = await axios.get("http://localhost:8000/api/v1/job/recruiter-jobs", { withCredentials: true });
+            const res = await axios.get("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/job/recruiter-jobs", { withCredentials: true });
             if (res.data.success) {
                 setJobs(res.data.jobs);
             }
@@ -50,7 +50,7 @@ const RecruiterJobs = () => {
     const handleDelete = async (id) => {
         if (!window.confirm("Are you sure you want to delete this listing?")) return;
         try {
-            const res = await axios.delete(`http://localhost:8000/api/v1/job/delete/${id}`, { withCredentials: true });
+            const res = await axios.delete(`https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/job/delete/${id}`, { withCredentials: true });
             if (res.data.success) {
                 toast.success("Job deleted");
                 fetchJobs();

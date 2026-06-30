@@ -17,7 +17,7 @@ const AdminApplications = () => {
     const fetchApplications = async () => {
         try {
             setLoading(true);
-            const res = await axios.get(`http://localhost:8000/api/v1/admin/applications?search=${searchTerm}&status=${statusFilter === 'all' ? '' : statusFilter}`, { withCredentials: true });
+            const res = await axios.get(`https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/applications?search=${searchTerm}&status=${statusFilter === 'all' ? '' : statusFilter}`, { withCredentials: true });
             if (res.data.success) {
                 setApplications(res.data.applications);
             }

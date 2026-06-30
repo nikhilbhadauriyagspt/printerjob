@@ -28,7 +28,7 @@ const useSession = () => {
                     res = await axios.get(`${ADMIN_API_END_POINT}/me`, { withCredentials: true });
                     if (res.data.success) dispatch(setUser(res.data.admin));
                 } else if (isRecruiterPath) {
-                    res = await axios.get("http://localhost:8000/api/v1/company/me", { withCredentials: true });
+                    res = await axios.get("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/company/me", { withCredentials: true });
                     if (res.data.success) dispatch(setUser(res.data.company));
                 } else {
                     // 🟢 Candidate session (Home and other pages)

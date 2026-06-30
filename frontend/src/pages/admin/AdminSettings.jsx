@@ -46,7 +46,7 @@ const AdminSettings = () => {
     useEffect(() => {
         const fetchConfig = async () => {
             try {
-                const res = await axios.get("http://localhost:8000/api/v1/admin/config", { withCredentials: true });
+                const res = await axios.get("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/config", { withCredentials: true });
                 if (res.data.success) {
                     const config = res.data.config;
                     setIsSupportEnabled(config.isSupportEnabled !== false); // Ensure boolean
@@ -71,7 +71,7 @@ const AdminSettings = () => {
     const handleToggleSupport = async () => {
         try {
             setToggling(true);
-            const res = await axios.put("http://localhost:8000/api/v1/admin/config/support", 
+            const res = await axios.put("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/config/support", 
                 { isEnabled: !isSupportEnabled }, 
                 { withCredentials: true }
             );
@@ -89,7 +89,7 @@ const AdminSettings = () => {
     const handleUpdateFreeMonths = async () => {
         try {
             setUpdatingFree(true);
-            const res = await axios.put("http://localhost:8000/api/v1/admin/config/free-access", 
+            const res = await axios.put("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/config/free-access", 
                 { months: freeMonths }, 
                 { withCredentials: true }
             );
@@ -106,7 +106,7 @@ const AdminSettings = () => {
     const handleUpdatePaymentSettings = async () => {
         try {
             setUpdatingPayment(true);
-            const res = await axios.put("http://localhost:8000/api/v1/admin/config/payment", 
+            const res = await axios.put("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/config/payment", 
                 { 
                     activeGateway, 
                     paymentMode, 

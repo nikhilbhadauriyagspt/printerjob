@@ -40,7 +40,7 @@ const AdminLayout = () => {
 
     const fetchNotifications = async () => {
         try {
-            const res = await axios.get("http://localhost:8000/api/v1/admin/notifications", { withCredentials: true });
+            const res = await axios.get("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/notifications", { withCredentials: true });
             if (res.data.success) {
                 setNotifications(res.data.notifications);
             }
@@ -57,7 +57,7 @@ const AdminLayout = () => {
 
     const markAsRead = async (id) => {
         try {
-            await axios.put(`http://localhost:8000/api/v1/admin/notifications/${id}/read`, {}, { withCredentials: true });
+            await axios.put(`https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/notifications/${id}/read`, {}, { withCredentials: true });
             fetchNotifications();
         } catch (error) {
             console.error("Error marking as read");
@@ -69,7 +69,7 @@ const AdminLayout = () => {
 
     const logoutHandler = async () => {
         try {
-            const res = await axios.get("http://localhost:8000/api/v1/admin/logout", { withCredentials: true });
+            const res = await axios.get("https://mediumturquoise-goshawk-440855.hostingersite.com/api/v1/admin/logout", { withCredentials: true });
             if (res.data.success) {
                 dispatch(setUser(null));
                 toast.success("Logged out successfully");
