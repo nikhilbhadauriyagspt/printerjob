@@ -111,6 +111,14 @@ const Company = sequelize.define('Company', {
     isFreeAccessEnabled: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
+    },
+    databaseCredits: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
+    unlockedCandidates: {
+        type: DataTypes.JSON, // Array of Candidate UUIDs
+        defaultValue: []
     }
 }, {
     timestamps: true

@@ -4,7 +4,7 @@
 This document provides details for all the APIs implemented in the Job Portal Backend.
 
 ## Base URL
-`http://localhost:3000/api/v1`
+`http://localhost:8000/api/v1`
 
 ---
 

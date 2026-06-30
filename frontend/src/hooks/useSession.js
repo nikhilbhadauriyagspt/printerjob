@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { setUser, setLoading, setConfig } from "../redux/authSlice";
-import { ADMIN_API_END_POINT } from "../utils/constant";
+import { ADMIN_API_END_POINT, CANDIDATE_API_END_POINT } from "../utils/constant";
 
 const useSession = () => {
     const dispatch = useDispatch();
@@ -14,11 +14,6 @@ const useSession = () => {
         const fetchSession = async () => {
             const isAdminPath = location.pathname.startsWith('/admin');
             const isRecruiterPath = location.pathname.startsWith('/recruiter');
-
-            if (!isAdminPath && !isRecruiterPath) {
-                dispatch(setLoading(false));
-                return;
-            }
 
             dispatch(setLoading(true));
             try {
@@ -35,16 +30,23 @@ const useSession = () => {
                 } else if (isRecruiterPath) {
                     res = await axios.get("http://localhost:8000/api/v1/company/me", { withCredentials: true });
                     if (res.data.success) dispatch(setUser(res.data.company));
+                } else {
+                    // 🟢 Candidate session (Home and other pages)
+                    res = await axios.get(`${CANDIDATE_API_END_POINT}/me`, { withCredentials: true });
+                    if (res.data.success) dispatch(setUser(res.data.candidate));
                 }
             } catch (error) {
-                console.log("No active session found for this route");
+                console.log("No active session found");
             } finally {
                 dispatch(setLoading(false));
             }
         };
 
-        fetchSession();
-    }, [location.pathname, dispatch]);
+        // Only fetch if user is not already in Redux state
+        if (!user) {
+            fetchSession();
+        }
+    }, [location.pathname, dispatch, user]);
 };
 
 export default useSession;

@@ -9,7 +9,11 @@ const OTP = sequelize.define('OTP', {
     },
     companyId: {
         type: DataTypes.UUID,
-        allowNull: false
+        allowNull: true // Changed to optional to support Candidate OTPs
+    },
+    candidateId: {
+        type: DataTypes.UUID,
+        allowNull: true // For Candidate Registration
     },
     emailOTP: {
         type: DataTypes.STRING,

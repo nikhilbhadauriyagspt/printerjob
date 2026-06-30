@@ -9,7 +9,11 @@ const ActivityLog = sequelize.define('ActivityLog', {
     },
     companyId: {
         type: DataTypes.UUID,
-        allowNull: false
+        allowNull: true // Changed from false to true to support candidate logs
+    },
+    candidateId: {
+        type: DataTypes.UUID,
+        allowNull: true // Track events for candidates
     },
     action: {
         type: DataTypes.STRING,

@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import Admin from '../models/admin.model.js';
+import Candidate from '../models/candidate.model.js';
 import Company from '../models/company.model.js';
 import Industry from '../models/industry.model.js';
 import Designation from '../models/designation.model.js';
@@ -12,6 +13,8 @@ import ActivityLog from '../models/activityLog.model.js';
 import Notification from '../models/notification.model.js';
 import Transaction from '../models/transaction.model.js';
 import Package from '../models/package.model.js';
+import Application from '../models/application.model.js';
+import Interview from '../models/interview.model.js';
 import { logActivity } from '../utils/logger.js';
 import { sendEmail, getAccountBlockedTemplate, getAccountUnblockedTemplate } from '../utils/emailService.js';
 import { Op, fn, col, literal } from 'sequelize';
@@ -411,18 +414,25 @@ export const addSuggestion = async (req, res) => {
 // 🟢 Fetch Suggestions (Used by Recruiter & Admin)
 export const getSuggestions = async (req, res) => {
     try {
-        const { type } = req.query || {};
+        const { type, query } = req.query || {};
         const Model = getModelByType(type);
         if (!Model) return res.status(400).json({ message: "Invalid type", success: false });
 
+        const where = { isApproved: true };
+        if (query) {
+            where.name = { [Op.like]: `%${query}%` };
+        }
+
         const suggestions = await Model.findAll({
-            where: { isApproved: true },
+            where,
             attributes: ['name'],
-            order: [['name', 'ASC']]
+            order: [['name', 'ASC']],
+            limit: query ? 20 : 100 // Return more if querying
         });
 
         return res.status(200).json({ success: true, suggestions: suggestions.map(s => s.name) });
     } catch (err) {
+        console.error("getSuggestions Error:", err);
         return res.status(500).json({ message: "Error fetching suggestions", success: false });
     }
 };
@@ -482,7 +492,7 @@ export const getCompanyBillingHistory = async (req, res) => {
 export const assignCustomPlan = async (req, res) => {
     try {
         const { id } = req.params;
-        const { packageName, durationDays, jobLimit, tier, amount } = req.body;
+        const { packageName, durationDays, jobLimit, tier, amount, type, databaseCredits } = req.body;
 
         const company = await Company.findByPk(id);
         if (!company) return res.status(404).json({ message: "Company not found", success: false });
@@ -490,22 +500,25 @@ export const assignCustomPlan = async (req, res) => {
         const expiryDate = new Date();
         expiryDate.setDate(expiryDate.getDate() + parseInt(durationDays));
 
-        // Update Company Plan (Overwrite with Custom Values)
-        await company.update({
-            planType: 'premium',
-            planExpiresAt: expiryDate,
-            currentPackageTier: parseInt(tier),
-            currentPackageId: null, // Custom plan doesn't link to a fixed package
-            jobPostingLimit: parseInt(jobLimit) // Set exactly what Admin entered
-        });
+        const updates = { currentPackageTier: parseInt(tier), currentPackageId: null };
+
+        if (type === 'database_access') {
+            updates.databaseCredits = (company.databaseCredits || 0) + parseInt(databaseCredits);
+        } else {
+            updates.planType = 'premium';
+            updates.planExpiresAt = expiryDate;
+            updates.jobPostingLimit = parseInt(jobLimit);
+        }
+
+        await company.update(updates);
 
         // Create Transaction Record
         await Transaction.create({
             companyId: id,
-            packageName: `CUSTOM: ${packageName}`,
+            packageName: `CUSTOM: ${packageName} (${type === 'database_access' ? 'Credits' : 'Jobs'})`,
             amount: amount || 0,
             durationDays,
-            jobLimit,
+            jobLimit: type === 'job_post' ? jobLimit : 0,
             status: 'success',
             paymentId: `ADMIN-MANUAL-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
         });
@@ -514,16 +527,16 @@ export const assignCustomPlan = async (req, res) => {
         await logActivity({ 
             companyId: company.id, 
             action: 'ADMIN_MANUAL_RECHARGE', 
-            details: `Admin assigned custom plan: ${packageName} (${durationDays} days, ${jobLimit} jobs, Tier ${tier})`,
+            details: `Admin assigned custom ${type}: ${packageName}`,
             req 
         });
 
-        // Optional: Send Email notification about custom plan
+        // Optional: Send Email
         try {
             await sendEmail({
                 to: company.email,
                 subject: "Account Updated: Custom Plan Assigned",
-                html: `<h3>Hello ${company.companyName},</h3><p>An administrator has manually updated your plan. Your new plan <b>${packageName}</b> is now active until <b>${expiryDate.toLocaleDateString()}</b>.</p>`
+                html: `<h3>Hello ${company.companyName},</h3><p>An administrator has manually updated your account with a custom <b>${type === 'database_access' ? 'Talent Search' : 'Recruitment'}</b> plan.</p>`
             });
         } catch (err) { console.error("Email failed"); }
 
@@ -540,8 +553,17 @@ export const assignCustomPlan = async (req, res) => {
 // 🟢 Admin: Create Packages
 export const createPackage = async (req, res) => {
     try {
-        const { name, price, durationDays, jobLimit, tier, description } = req.body;
-        const pkg = await Package.create({ name, price, durationDays, jobLimit, tier: parseInt(tier) || 1, description });
+        const { name, price, durationDays, jobLimit, tier, description, type, databaseCredits } = req.body;
+        const pkg = await Package.create({ 
+            name, 
+            price, 
+            durationDays, 
+            jobLimit: jobLimit || 0, 
+            tier: parseInt(tier) || 1, 
+            description,
+            type: type || 'job_post',
+            databaseCredits: databaseCredits || 0
+        });
         return res.status(201).json({ message: "Package created successfully", success: true, pkg });
     } catch (error) {
         console.error("Create Package Error:", error);
@@ -553,7 +575,7 @@ export const createPackage = async (req, res) => {
 export const updatePackage = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, price, durationDays, jobLimit, tier, description } = req.body;
+        const { name, price, durationDays, jobLimit, tier, description, type, databaseCredits } = req.body;
         
         const pkg = await Package.findByPk(id);
         if (!pkg) return res.status(404).json({ message: "Package not found", success: false });
@@ -562,9 +584,11 @@ export const updatePackage = async (req, res) => {
             name, 
             price, 
             durationDays, 
-            jobLimit, 
+            jobLimit: jobLimit || 0, 
             tier: parseInt(tier) || pkg.tier, 
-            description 
+            description,
+            type: type || pkg.type,
+            databaseCredits: databaseCredits || 0
         });
         
         return res.status(200).json({ message: "Package updated successfully", success: true, pkg });
@@ -652,5 +676,176 @@ export const updateFreeAccessSettings = async (req, res) => {
         return res.status(200).json({ message: `New recruiters will now get ${months} months free access`, success: true });
     } catch (error) {
         return res.status(500).json({ message: "Error updating settings", success: false });
+    }
+};
+
+// 🟢 Admin: Get All Candidates
+export const getAllCandidates = async (req, res) => {
+    try {
+        const { search } = req.query || {};
+        const where = {};
+        if (search) {
+            where[Op.or] = [
+                { fullName: { [Op.like]: `%${search}%` } },
+                { email: { [Op.like]: `%${search}%` } },
+                { phoneNumber: { [Op.like]: `%${search}%` } }
+            ];
+        }
+
+        const candidates = await Candidate.findAll({
+            where,
+            attributes: { exclude: ['password'] },
+            order: [['createdAt', 'DESC']]
+        });
+
+        return res.status(200).json({ success: true, candidates });
+    } catch (error) {
+        return res.status(500).json({ message: "Error fetching candidates", success: false });
+    }
+};
+
+// 🟢 Admin: Toggle Candidate Status (Block/Unblock)
+export const toggleCandidateStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const candidate = await Candidate.findByPk(id);
+        if (!candidate) return res.status(404).json({ message: "Candidate not found", success: false });
+
+        const isBlocked = candidate.status === 'blocked';
+        candidate.status = isBlocked ? 'active' : 'blocked';
+        await candidate.save();
+
+        // Optional: Send email notification
+        try {
+            await sendEmail({
+                to: candidate.email,
+                subject: `Your Account has been ${isBlocked ? 'Unblocked' : 'Blocked'}`,
+                html: `<p>Hello ${candidate.fullName}, your account status has been updated to: <b>${candidate.status}</b> by the administrator.</p>`
+            });
+        } catch (err) { console.error("Email failed"); }
+
+        return res.status(200).json({ message: `Candidate ${isBlocked ? 'unblocked' : 'blocked'} successfully`, success: true, candidate });
+    } catch (error) {
+        return res.status(500).json({ message: "Error toggling status", success: false });
+    }
+};
+
+// 🟢 Admin: Get Dashboard Statistics
+export const getAdminStats = async (req, res) => {
+    try {
+        const [candidateCount, companyCount, jobCount, activeJobs] = await Promise.all([
+            Candidate.count(),
+            Company.count(),
+            Job.count(),
+            Job.count({ where: { status: 'active' } })
+        ]);
+
+        // Monthly trends (simplified)
+        const candidatesMonthly = await Candidate.findAll({
+            attributes: [
+                [fn('MONTH', col('createdAt')), 'month'],
+                [fn('COUNT', col('id')), 'count']
+            ],
+            group: [fn('MONTH', col('createdAt'))],
+            raw: true
+        });
+
+        return res.status(200).json({
+            success: true,
+            stats: {
+                totalCandidates: candidateCount,
+                totalCompanies: companyCount,
+                totalJobs: jobCount,
+                activeJobs,
+                trends: candidatesMonthly
+            }
+        });
+    } catch (error) {
+        return res.status(500).json({ message: "Error fetching stats", success: false });
+    }
+};
+
+// 🟢 Admin: Get All Applications (Global Hiring Tracking)
+export const getAllApplications = async (req, res) => {
+    try {
+        const { status, search } = req.query || {};
+        const where = {};
+        
+        if (status) where.status = status;
+
+        const applications = await Application.findAll({
+            where,
+            include: [
+                {
+                    model: Candidate,
+                    as: 'Candidate',
+                    attributes: ['fullName', 'email', 'profilePhoto', 'phoneNumber'],
+                    where: search ? {
+                        [Op.or]: [
+                            { fullName: { [Op.like]: `%${search}%` } },
+                            { email: { [Op.like]: `%${search}%` } }
+                        ]
+                    } : {}
+                },
+                {
+                    model: Job,
+                    as: 'Job',
+                    attributes: ['title', 'location'],
+                    include: [{
+                        model: Company,
+                        as: 'Company',
+                        attributes: ['companyName', 'logo']
+                    }]
+                }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
+
+        return res.status(200).json({
+            success: true,
+            applications
+        });
+    } catch (error) {
+        console.error("GET ALL APPLICATIONS ERROR:", error);
+        return res.status(500).json({ message: "Error fetching applications", success: false });
+    }
+};
+
+// 🟢 Admin: Get Specific Candidate's Applications
+export const getCandidateApplications = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const applications = await Application.findAll({
+            where: { candidateId: id },
+            include: [{
+                model: Job,
+                as: 'Job',
+                attributes: ['title'],
+                include: [{ model: Company, as: 'Company', attributes: ['companyName'] }]
+            }],
+            order: [['createdAt', 'DESC']]
+        });
+        return res.status(200).json({ success: true, applications });
+    } catch (error) {
+        return res.status(500).json({ message: "Error fetching candidate applications", success: false });
+    }
+};
+
+// 🟢 Admin: Get Specific Job's Applicants
+export const getJobApplicants = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const applicants = await Application.findAll({
+            where: { jobId: id },
+            include: [{
+                model: Candidate,
+                as: 'Candidate',
+                attributes: ['fullName', 'email', 'profilePhoto', 'phoneNumber']
+            }],
+            order: [['createdAt', 'DESC']]
+        });
+        return res.status(200).json({ success: true, applicants });
+    } catch (error) {
+        return res.status(500).json({ message: "Error fetching job applicants", success: false });
     }
 };

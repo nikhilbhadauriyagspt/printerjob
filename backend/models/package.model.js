@@ -28,6 +28,14 @@ const Package = sequelize.define('Package', {
         defaultValue: 1, // 1: Basic, 2: Standard, 3: Premium, etc.
         allowNull: false
     },
+    type: {
+        type: DataTypes.ENUM('job_post', 'database_access'),
+        defaultValue: 'job_post'
+    },
+    databaseCredits: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
     description: {
         type: DataTypes.TEXT,
         allowNull: true

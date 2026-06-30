@@ -12,7 +12,7 @@ const Notification = sequelize.define('Notification', {
         allowNull: false
     },
     recipientType: {
-        type: DataTypes.ENUM('admin', 'company'),
+        type: DataTypes.ENUM('admin', 'company', 'candidate'),
         allowNull: false
     },
     title: {

@@ -155,12 +155,15 @@ const RecruiterJobs = () => {
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-3 mb-6">
-                                    <div className="p-3 bg-slate-50/50 rounded-xl border border-slate-100">
-                                        <div className="flex items-center gap-1.5 text-slate-400 mb-1">
+                                    <div 
+                                        onClick={() => navigate(`/recruiter/applicants/${job.id}`)}
+                                        className="p-3 bg-slate-50/50 rounded-xl border border-slate-100 cursor-pointer hover:border-indigo-300 transition-all group/card"
+                                    >
+                                        <div className="flex items-center gap-1.5 text-slate-400 mb-1 group-hover/card:text-indigo-500">
                                             <Users size={10}/>
                                             <span className="text-[9px] font-bold uppercase">Applies</span>
                                         </div>
-                                        <p className="text-xs font-bold text-slate-700">{job.applicationCount || 0}</p>
+                                        <p className="text-xs font-bold text-slate-700 group-hover/card:text-indigo-600">{job.applicationCount || 0}</p>
                                     </div>
                                     <div className="p-3 bg-slate-50/50 rounded-xl border border-slate-100">
                                         <div className="flex items-center gap-1.5 text-slate-400 mb-1">
@@ -171,12 +174,12 @@ const RecruiterJobs = () => {
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-between pt-5 border-t border-slate-50">
+                                <div className="flex items-center justify-between pt-5 border-t border-slate-50 mt-auto">
                                     <button 
-                                        onClick={() => navigate(`/recruiter/post-job?edit=${job.id}`)}
-                                        className="text-[11px] font-bold text-slate-500 flex items-center gap-1.5 hover:text-indigo-600 transition-all"
+                                        onClick={() => navigate(`/recruiter/applicants/${job.id}`)}
+                                        className="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg text-[11px] font-bold hover:bg-indigo-600 hover:text-white transition-all flex items-center gap-2"
                                     >
-                                        View Details <ChevronRight size={12}/>
+                                        <Users size={14}/> View Applicants
                                     </button>
                                     {job.status === 'rejected' && (
                                         <div className="relative group/msg">

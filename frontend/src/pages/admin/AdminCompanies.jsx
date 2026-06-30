@@ -98,7 +98,9 @@ const AdminCompanies = () => {
         durationDays: 30,
         jobLimit: 10,
         tier: 1,
-        amount: 0
+        amount: 0,
+        type: 'job_post',
+        databaseCredits: 0
     });
 
     const fetchBillingHistory = async (id) => {
@@ -114,7 +116,7 @@ const AdminCompanies = () => {
         try {
             const res = await axios.post(`http://localhost:8000/api/v1/admin/companies/${selectedCompany.id}/assign-plan`, planFormData, { withCredentials: true });
             if (res.data.success) {
-                toast.success("Plan assigned!");
+                toast.success("Custom plan/credits assigned!");
                 setShowPlanForm(false);
                 fetchBillingHistory(selectedCompany.id);
                 fetchCompanies(); 
@@ -440,19 +442,31 @@ const AdminCompanies = () => {
 
                                             {showPlanForm && (
                                                 <motion.form initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} onSubmit={handleAssignPlan} className="bg-slate-50 border border-slate-200 rounded-2xl p-6 space-y-4 overflow-hidden shadow-sm">
-                                                    <h4 className="text-xs font-bold text-slate-700 uppercase tracking-widest mb-2 flex items-center gap-2"><IndianRupee size={14}/> Configure Manual Plan</h4>
+                                                    <div className="flex items-center justify-between mb-2">
+                                                        <h4 className="text-xs font-bold text-slate-700 uppercase tracking-widest flex items-center gap-2"><IndianRupee size={14}/> Configure Manual Plan</h4>
+                                                        <div className="flex gap-2 bg-white p-1 rounded-lg border border-slate-200 shadow-inner">
+                                                            <button type="button" onClick={() => setPlanFormData({...planFormData, type: 'job_post'})} className={`px-4 py-1 rounded text-[9px] font-bold uppercase transition-all ${planFormData.type === 'job_post' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>Job Posting</button>
+                                                            <button type="button" onClick={() => setPlanFormData({...planFormData, type: 'database_access'})} className={`px-4 py-1 rounded text-[9px] font-bold uppercase transition-all ${planFormData.type === 'database_access' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>Search Credits</button>
+                                                        </div>
+                                                    </div>
                                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                                                         <div className="space-y-1">
                                                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Plan Name</label>
-                                                            <input type="text" required value={planFormData.packageName} onChange={(e) => setPlanFormData({...planFormData, packageName: e.target.value})} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-indigo-500" placeholder="e.g. Enterprise Special" />
+                                                            <input type="text" required value={planFormData.packageName} onChange={(e) => setPlanFormData({...planFormData, packageName: e.target.value})} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-indigo-500" placeholder="e.g. Special Credits" />
                                                         </div>
                                                         <div className="space-y-1">
                                                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Duration (Days)</label>
                                                             <input type="number" required value={planFormData.durationDays} onChange={(e) => setPlanFormData({...planFormData, durationDays: e.target.value})} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-indigo-500" />
                                                         </div>
                                                         <div className="space-y-1">
-                                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Job Limit (-1 for Unl)</label>
-                                                            <input type="number" required value={planFormData.jobLimit} onChange={(e) => setPlanFormData({...planFormData, jobLimit: e.target.value})} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-indigo-500" />
+                                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                                                                {planFormData.type === 'job_post' ? 'Job Limit (-1 for Unl)' : 'Search Credits'}
+                                                            </label>
+                                                            {planFormData.type === 'job_post' ? (
+                                                                <input type="number" required value={planFormData.jobLimit} onChange={(e) => setPlanFormData({...planFormData, jobLimit: e.target.value})} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-indigo-500" />
+                                                            ) : (
+                                                                <input type="number" required value={planFormData.databaseCredits} onChange={(e) => setPlanFormData({...planFormData, databaseCredits: e.target.value})} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs outline-none focus:border-emerald-500" placeholder="50" />
+                                                            )}
                                                         </div>
                                                         <div className="space-y-1">
                                                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Tier (1-10)</label>
@@ -464,7 +478,7 @@ const AdminCompanies = () => {
                                                         </div>
                                                     </div>
                                                     <div className="flex justify-end pt-2">
-                                                        <button type="submit" className="px-6 py-2 bg-indigo-600 text-white rounded-lg text-[11px] font-bold uppercase tracking-widest hover:bg-indigo-700 transition-all">Assign Now</button>
+                                                        <button type="submit" className={`px-6 py-2 rounded-lg text-[11px] font-bold uppercase tracking-widest transition-all ${planFormData.type === 'job_post' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-emerald-600 hover:bg-emerald-700'} text-white`}>Assign Now</button>
                                                     </div>
                                                 </motion.form>
                                             )}

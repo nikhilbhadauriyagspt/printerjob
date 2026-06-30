@@ -83,6 +83,7 @@ const AdminLayout = () => {
     const navItems = [
         { name: 'Dashboard', icon: <LayoutDashboard size={20} />, path: "/admin/dashboard" },
         { name: 'Jobs', icon: <Briefcase size={20} />, path: "/admin/jobs" },
+        { name: 'Applications', icon: <FileText size={20} />, path: "/admin/applications" },
         { name: 'Candidates', icon: <Users size={20} />, path: "/admin/users" },
         { name: 'Companies', icon: <Building2 size={20} />, path: "/admin/companies" },
         { name: 'Packages', icon: <Zap size={20} />, path: "/admin/packages" },

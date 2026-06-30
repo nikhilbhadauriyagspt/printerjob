@@ -1,15 +1,30 @@
 import { createBrowserRouter, RouterProvider, Navigate, Outlet } from 'react-router-dom';
 import AdminLogin from './pages/admin/AdminLogin';
+import CandidateHome from './pages/candidate/CandidateHome';
+import CandidateLogin from './pages/candidate/CandidateLogin';
+import CandidateRegister from './pages/candidate/CandidateRegister';
+import CandidateProfileSetup from './pages/candidate/CandidateProfileSetup';
+import CandidateProfile from './pages/candidate/CandidateProfile';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminJobs from './pages/admin/AdminJobs';
+import AdminUsers from './pages/admin/AdminUsers';
 import AdminCompanies from './pages/admin/AdminCompanies';
 import AdminSuggestions from './pages/admin/AdminSuggestions';
 import AdminNotifications from './pages/admin/AdminNotifications';
 import AdminMessages from './pages/admin/AdminMessages';
 import AdminSettings from './pages/admin/AdminSettings';
 import AdminPackages from './pages/admin/AdminPackages';
+import AdminApplications from './pages/admin/AdminApplications';
 import AdminLayout from './layout/AdminLayout';
 import ProtectedRoute from './components/admin/ProtectedRoute';
+
+import CandidateDashboard from './pages/candidate/CandidateDashboard';
+import CandidateJobs from './pages/candidate/CandidateJobs';
+import CandidateJobDescription from './pages/candidate/CandidateJobDescription';
+import CandidateCompanies from './pages/candidate/CandidateCompanies';
+import CandidateSalaries from './pages/candidate/CandidateSalaries';
+import ProjectGuide from './pages/ProjectGuide';
+import CareerGuide from './pages/candidate/CareerGuide';
 
 // Recruiter Pages
 import RecruiterLogin from './pages/recruiter/RecruiterLogin';
@@ -26,6 +41,11 @@ import RecruiterMessages from './pages/recruiter/RecruiterMessages';
 import RecruiterNotifications from './pages/recruiter/RecruiterNotifications';
 import RecruiterPricing from './pages/recruiter/RecruiterPricing';
 import RecruiterBilling from './pages/recruiter/RecruiterBilling';
+import RecruiterApplicants from './pages/recruiter/RecruiterApplicants';
+import RecruiterCandidateView from './pages/recruiter/RecruiterCandidateView';
+import RecruiterTalentSearch from './pages/recruiter/RecruiterTalentSearch';
+import RecruiterBuyCredits from './pages/recruiter/RecruiterBuyCredits';
+import RecruiterUnlockedTalent from './pages/recruiter/RecruiterUnlockedTalent';
 
 // Session Hook
 import useSession from './hooks/useSession';
@@ -40,6 +60,54 @@ const appRouter = createBrowserRouter([
     path: "/",
     element: <SessionManager />,
     children: [
+      {
+        path: "job/description/:id",
+        element: <CandidateJobDescription />
+      },
+      {
+        index: true,
+        element: <CandidateHome />
+      },
+      {
+        path: "login",
+        element: <CandidateLogin />
+      },
+      {
+        path: "register",
+        element: <CandidateRegister />
+      },
+      {
+        path: "setup-profile",
+        element: <CandidateProfileSetup />
+      },
+      {
+        path: "profile",
+        element: <CandidateProfile />
+      },
+      {
+        path: "jobs",
+        element: <CandidateJobs />
+      },
+      {
+        path: "dashboard",
+        element: <CandidateDashboard />
+      },
+      {
+        path: "companies",
+        element: <CandidateCompanies />
+      },
+      {
+        path: "salaries",
+        element: <CandidateSalaries />
+      },
+      {
+        path: "guide",
+        element: <ProjectGuide />
+      },
+      {
+        path: "career-guide",
+        element: <CareerGuide />
+      },
       // Admin Routes
       {
         path: "admin/login",
@@ -62,8 +130,12 @@ const appRouter = createBrowserRouter([
             element: <AdminJobs />
           },
           {
+            path: "applications",
+            element: <AdminApplications />
+          },
+          {
             path: "users",
-            element: <div className="p-8 text-slate-500 font-bold">Users Directory Content</div>
+            element: <AdminUsers />
           },
           {
             path: "companies",
@@ -122,6 +194,14 @@ const appRouter = createBrowserRouter([
             element: <RecruiterJobs />
           },
           {
+            path: "applicants/:id",
+            element: <RecruiterApplicants />
+          },
+          {
+            path: "candidate/:id",
+            element: <RecruiterCandidateView />
+          },
+          {
             path: "profile",
             element: <RecruiterProfile />
           },
@@ -135,7 +215,15 @@ const appRouter = createBrowserRouter([
           },
           {
             path: "talent-pool",
-            element: <div className="p-8 text-slate-500 font-bold">Talent Pool / Candidate Search</div>
+            element: <RecruiterTalentSearch />
+          },
+          {
+            path: "buy-credits",
+            element: <RecruiterBuyCredits />
+          },
+          {
+            path: "unlocked-talent",
+            element: <RecruiterUnlockedTalent />
           },
           {
             path: "messages",
@@ -158,12 +246,6 @@ const appRouter = createBrowserRouter([
             element: <RecruiterBilling />
           }
         ]
-      },
-      
-      // Root Redirect
-      {
-        path: "",
-        element: <Navigate to="/admin/login" />
       }
     ]
   }

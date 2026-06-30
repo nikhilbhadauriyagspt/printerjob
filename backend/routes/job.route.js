@@ -1,5 +1,5 @@
 import express from 'express';
-import { createJob, updateJob, getRecruiterJobs, adminReviewJob, getJobById, deleteJob } from '../controllers/job.controller.js';
+import { createJob, updateJob, getRecruiterJobs, adminReviewJob, getJobById, deleteJob, getAllJobs } from '../controllers/job.controller.js';
 import companyAuth from '../middlewares/companyAuth.js';
 import adminAuth from '../middlewares/adminAuth.js';
 
@@ -15,6 +15,7 @@ router.get('/recruiter-jobs', companyAuth, getRecruiterJobs);
 router.post('/admin/review', adminAuth, adminReviewJob);
 
 // Public Endpoints
+router.get('/all', getAllJobs);
 router.get('/get/:id', getJobById);
 
 export default router;

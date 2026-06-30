@@ -1,5 +1,16 @@
 import express from 'express';
-import { getAdmin, loginAdmin, logoutAdmin, registerAdmin, getAllCompanies, toggleCompanyStatus, getCompanyActivityHistory, getCompanyBillingHistory, assignCustomPlan, onboardRecruiter, bulkUploadSuggestions, addSuggestion, getSuggestions, getAllJobs, getAdminNotifications, markNotificationAsRead, getCompanyJobs, toggleSupportStatus, getSystemConfig, createPackage, getAdminPackages, updateFreeAccessSettings, updatePaymentSettings, updatePackage, deletePackage } from '../controllers/admin.controller.js';
+import { 
+    getAdmin, loginAdmin, logoutAdmin, registerAdmin, 
+    getAllCompanies, toggleCompanyStatus, getCompanyActivityHistory, 
+    getCompanyBillingHistory, assignCustomPlan, onboardRecruiter, 
+    bulkUploadSuggestions, addSuggestion, getSuggestions, 
+    getAllJobs, getAdminNotifications, markNotificationAsRead, 
+    getCompanyJobs, toggleSupportStatus, getSystemConfig, 
+    createPackage, getAdminPackages, updateFreeAccessSettings, 
+    updatePaymentSettings, updatePackage, deletePackage,
+    getAllCandidates, toggleCandidateStatus, getAdminStats,
+    getAllApplications, getCandidateApplications, getJobApplicants
+} from '../controllers/admin.controller.js';
 import adminAuth from '../middlewares/adminAuth.js';
 
 const router = express.Router();
@@ -9,6 +20,17 @@ router.post('/register', registerAdmin);
 router.post('/login', loginAdmin);
 router.get('/logout', logoutAdmin);
 router.get('/me', adminAuth, getAdmin);
+
+// 🟢 Stats
+router.get('/stats', adminAuth, getAdminStats);
+
+// 🟢 Candidate Management
+router.get('/candidates', adminAuth, getAllCandidates);
+router.put('/candidates/:id/status', adminAuth, toggleCandidateStatus);
+router.get('/candidates/:id/applications', adminAuth, getCandidateApplications); // 🟢 New
+
+// 🟢 Applications Management (Global)
+router.get('/applications', adminAuth, getAllApplications);
 
 // Recruiter Management
 router.get('/companies', adminAuth, getAllCompanies);
@@ -21,6 +43,7 @@ router.post('/companies/:id/assign-plan', adminAuth, assignCustomPlan);
 
 // Job Management
 router.get('/jobs', adminAuth, getAllJobs);
+router.get('/jobs/:id/applicants', adminAuth, getJobApplicants); // 🟢 New
 
 // System Config
 router.get('/config', getSystemConfig);

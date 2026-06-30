@@ -1,5 +1,32 @@
 import express from 'express';
-import { registerCompany, loginCompany, verifyCompanyOTP, logoutCompany, updateCompanyProfile, getCompany, getPackages, resendOTP, googleLogin, verifyPhoneAfterGoogle, setPasswordAfterGoogle, sendPasswordSetupOTP, fetchCompanyInfoFromUrl, getCompanyNotifications, markNotificationAsRead, initiatePurchase, verifyPayment, getBillingHistory } from '../controllers/company.controller.js';
+import { 
+    registerCompany, 
+    loginCompany, 
+    verifyCompanyOTP, 
+    logoutCompany, 
+    updateCompanyProfile, 
+    getCompany, 
+    getPackages, 
+    resendOTP, 
+    googleLogin, 
+    verifyPhoneAfterGoogle, 
+    setPasswordAfterGoogle, 
+    sendPasswordSetupOTP, 
+    fetchCompanyInfoFromUrl, 
+    getCompanyNotifications, 
+    markNotificationAsRead, 
+    initiatePurchase, 
+    verifyPayment, 
+    getBillingHistory,
+    talentSearch, 
+    unlockCandidate, 
+    getSearchSuggestions, 
+    getCandidateById,
+    getApplicantDetail,
+    getUnlockedCandidates,
+    bulkUnlockCandidates,
+    updateInteraction
+} from '../controllers/company.controller.js';
 import jwt from 'jsonwebtoken';
 import { upload } from '../middlewares/upload.js';
 
@@ -33,6 +60,16 @@ router.get('/packages', companyAuth, getPackages);
 router.post('/purchase/initiate', companyAuth, initiatePurchase);
 router.post('/purchase/verify', companyAuth, verifyPayment);
 router.get('/billing', companyAuth, getBillingHistory);
+
+// Talent Search (Advanced)
+router.get('/talent-search', companyAuth, talentSearch);
+router.get('/search-suggestions', companyAuth, getSearchSuggestions);
+router.get('/candidate/:id', companyAuth, getCandidateById);
+router.get('/applicant/:id', companyAuth, getApplicantDetail);
+router.get('/unlocked-history', companyAuth, getUnlockedCandidates);
+router.post('/unlock-candidate', companyAuth, unlockCandidate);
+router.post('/bulk-unlock', companyAuth, bulkUnlockCandidates);
+router.post('/update-interaction', companyAuth, updateInteraction);
 
 // Notifications
 router.get('/notifications', companyAuth, getCompanyNotifications);

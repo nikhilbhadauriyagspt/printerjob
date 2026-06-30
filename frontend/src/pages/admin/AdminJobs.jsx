@@ -2,17 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { 
-    Search, 
-    Briefcase, 
-    Building2, 
-    Loader2, 
-    CheckCircle2, 
-    XCircle,
-    Eye,
-    IndianRupee,
-    MapPin,
-    Calendar,
-    AlertCircle
+    Search, Briefcase, Building2, Loader2, CheckCircle2, 
+    XCircle, Eye, IndianRupee, MapPin, Calendar, AlertCircle,
+    Users, User, Mail, Phone, ExternalLink, ShieldAlert
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -20,9 +12,12 @@ const AdminJobs = () => {
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
-    const [filterStatus, setFilterStatus] = useState("all"); // 'all', 'pending', 'active', 'rejected'
+    const [filterStatus, setFilterStatus] = useState("all");
     
     const [selectedJob, setSelectedJob] = useState(null);
+    const [applicants, setApplicants] = useState([]);
+    const [loadingApplicants, setLoadingApplicants] = useState(false);
+    
     const [rejectReason, setRejectReason] = useState("");
     const [actionLoading, setActionLoading] = useState(false);
 
@@ -31,7 +26,6 @@ const AdminJobs = () => {
             setLoading(true);
             const res = await axios.get("http://localhost:8000/api/v1/admin/jobs", { withCredentials: true });
             if (res.data.success) {
-                // Filter out drafts - Admin only reviews submitted jobs
                 setJobs(res.data.jobs.filter(j => j.status !== 'draft'));
             }
         } catch (error) {
@@ -41,20 +35,28 @@ const AdminJobs = () => {
         }
     };
 
-    const parseJSON = (data, fallback = []) => {
-        if (!data) return fallback;
-        if (Array.isArray(data)) return data;
+    const fetchApplicants = async (jobId) => {
         try {
-            const parsed = typeof data === 'string' ? JSON.parse(data) : data;
-            return Array.isArray(parsed) ? parsed : fallback;
-        } catch (e) {
-            return fallback;
+            setLoadingApplicants(true);
+            const res = await axios.get(`http://localhost:8000/api/v1/admin/jobs/${jobId}/applicants`, { withCredentials: true });
+            if (res.data.success) {
+                setApplicants(res.data.applicants);
+            }
+        } catch (error) {
+            console.error("Error fetching applicants");
+        } finally {
+            setLoadingApplicants(false);
         }
     };
 
     useEffect(() => {
         fetchJobs();
     }, []);
+
+    const handleSelectJob = (job) => {
+        setSelectedJob(job);
+        fetchApplicants(job.id);
+    };
 
     const handleReviewJob = async (jobId, action) => {
         if (action === 'reject' && !rejectReason.trim()) {
@@ -73,13 +75,22 @@ const AdminJobs = () => {
                 toast.success(res.data.message);
                 setSelectedJob(null);
                 setRejectReason("");
-                fetchJobs(); // Refresh list
+                fetchJobs();
             }
         } catch (error) {
             toast.error(error.response?.data?.message || "Review action failed");
         } finally {
             setActionLoading(false);
         }
+    };
+
+    const parseJSON = (data, fallback = []) => {
+        if (!data) return fallback;
+        if (Array.isArray(data)) return data;
+        try {
+            const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+            return Array.isArray(parsed) ? parsed : fallback;
+        } catch (e) { return fallback; }
     };
 
     const filteredJobs = jobs.filter(job => {
@@ -91,10 +102,9 @@ const AdminJobs = () => {
 
     const getStatusBadge = (status) => {
         switch(status) {
-            case 'pending': return <span className="px-2.5 py-1 bg-amber-50 text-amber-600 rounded-lg text-[10px] font-bold uppercase tracking-widest border border-amber-100 flex items-center gap-1.5"><AlertCircle size={10}/> Pending Review</span>;
+            case 'pending': return <span className="px-2.5 py-1 bg-amber-50 text-amber-600 rounded-lg text-[10px] font-bold uppercase tracking-widest border border-amber-100 flex items-center gap-1.5"><AlertCircle size={10}/> Review</span>;
             case 'active': return <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-bold uppercase tracking-widest border border-emerald-100 flex items-center gap-1.5"><CheckCircle2 size={10}/> Active</span>;
             case 'rejected': return <span className="px-2.5 py-1 bg-rose-50 text-rose-600 rounded-lg text-[10px] font-bold uppercase tracking-widest border border-rose-100 flex items-center gap-1.5"><XCircle size={10}/> Rejected</span>;
-            case 'closed': return <span className="px-2.5 py-1 bg-slate-100 text-slate-500 rounded-lg text-[10px] font-bold uppercase tracking-widest border border-slate-200 flex items-center gap-1.5"><Briefcase size={10}/> Closed</span>;
             default: return <span className="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold uppercase tracking-widest border border-slate-200">{status}</span>;
         }
     };
@@ -104,8 +114,8 @@ const AdminJobs = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Job Verification Queue</h1>
-                    <p className="text-sm text-slate-500 font-medium">Review and approve jobs before they go live.</p>
+                    <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Job Moderation Center</h1>
+                    <p className="text-sm text-slate-500 font-medium">Verify jobs and monitor applicant activities.</p>
                 </div>
                 
                 <div className="flex flex-col sm:flex-row gap-3">
@@ -114,16 +124,15 @@ const AdminJobs = () => {
                         onChange={(e) => setFilterStatus(e.target.value)}
                         className="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 outline-none focus:border-indigo-600"
                     >
-                        <option value="all">All Jobs</option>
-                        <option value="pending">Pending Only</option>
-                        <option value="active">Active Jobs</option>
-                        <option value="rejected">Rejected Jobs</option>
+                        <option value="all">All Statuses</option>
+                        <option value="pending">Pending Review</option>
+                        <option value="active">Currently Active</option>
                     </select>
                     <div className="relative">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                         <input 
                             type="text" 
-                            placeholder="Search jobs or companies..." 
+                            placeholder="Search jobs..." 
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full sm:w-64 pl-11 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:border-indigo-600 transition-all outline-none font-medium"
@@ -136,198 +145,158 @@ const AdminJobs = () => {
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-20 space-y-4">
                     <Loader2 className="animate-spin text-indigo-600" size={40} />
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Loading Jobs...</p>
                 </div>
             ) : filteredJobs.length === 0 ? (
-                <div className="bg-white rounded-3xl border-2 border-dashed border-slate-100 py-20 flex flex-col items-center justify-center text-center space-y-4">
-                    <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-200">
-                        <Briefcase size={32} />
-                    </div>
-                    <div className="space-y-1">
-                        <p className="text-sm font-bold text-slate-800">No jobs found in queue</p>
-                        <p className="text-xs text-slate-400 font-medium">Wait for recruiters to post new jobs.</p>
-                    </div>
+                <div className="bg-white rounded-3xl border-2 border-dashed border-slate-100 py-20 flex flex-col items-center justify-center text-center">
+                    <Briefcase size={40} className="text-slate-200 mb-4"/>
+                    <p className="text-sm font-bold text-slate-800 uppercase tracking-widest">Queue is empty</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {filteredJobs.map((job) => (
-                        <div key={job.id} className="bg-white p-6 rounded-[24px] border border-slate-200 shadow-sm space-y-5 hover:border-indigo-200 transition-all">
-                            <div className="flex items-start justify-between gap-4">
+                        <div key={job.id} className="bg-white p-6 rounded-[24px] border border-slate-200 shadow-sm hover:border-indigo-200 transition-all group">
+                            <div className="flex items-start justify-between gap-4 mb-5">
                                 <div className="flex gap-3">
                                     <div className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center overflow-hidden shrink-0">
-                                        {job.Company?.logo ? (
-                                            <img src={job.Company.logo} className="w-full h-full object-cover" alt="logo"/>
-                                        ) : (
-                                            <Building2 size={20} className="text-slate-400"/>
-                                        )}
+                                        {job.Company?.logo ? <img src={job.Company.logo} className="w-full h-full object-cover" /> : <Building2 size={20} className="text-slate-400"/>}
                                     </div>
                                     <div>
-                                        <h3 className="text-base font-bold text-slate-800 line-clamp-1">{job.title}</h3>
-                                        <p className="text-xs font-medium text-slate-500">{job.Company?.companyName}</p>
+                                        <h3 className="text-base font-bold text-slate-800 line-clamp-1 group-hover:text-indigo-600 transition-colors">{job.title}</h3>
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter">{job.Company?.companyName}</p>
                                     </div>
                                 </div>
                                 {getStatusBadge(job.status)}
                             </div>
                             
-                            <div className="space-y-2">
-                                <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
+                            <div className="grid grid-cols-2 gap-4 pb-5">
+                                <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase">
+                                    <Users size={14} className="text-indigo-400"/>
+                                    {job.applicationCount || 0} Applicants
+                                </div>
+                                <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase justify-end">
                                     <MapPin size={14} className="text-slate-400"/>
-                                    {parseJSON(job.location).length > 0 ? parseJSON(job.location).join(", ") : 'Multiple Locations'}
-                                </div>
-                                <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
-                                    <IndianRupee size={14} className="text-slate-400"/>
-                                    {parseFloat(job.minSalary) > 0 || parseFloat(job.maxSalary) > 0 
-                                        ? `${job.minSalary} - ${job.maxSalary}` 
-                                        : "Not Disclosed"}
-                                </div>
-                                <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
-                                    <Calendar size={14} className="text-slate-400"/>
-                                    Posted: {new Date(job.createdAt).toLocaleDateString()}
+                                    {parseJSON(job.location)[0] || 'Remote'}
                                 </div>
                             </div>
 
                             <button 
-                                onClick={() => setSelectedJob(job)}
-                                className="w-full py-2.5 bg-slate-50 text-indigo-600 rounded-xl text-xs font-bold hover:bg-indigo-50 transition-all flex items-center justify-center gap-2"
+                                onClick={() => handleSelectJob(job)}
+                                className="w-full py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-indigo-600 transition-all flex items-center justify-center gap-2"
                             >
-                                <Eye size={16}/> Review Job Details
+                                <Eye size={16}/> Inspect & Manage
                             </button>
                         </div>
                     ))}
                 </div>
             )}
 
-            {/* Deep Review Modal */}
+            {/* Job & Applicants Insight Modal */}
             <AnimatePresence>
                 {selectedJob && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedJob(null)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
                         
-                        <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="bg-white w-full max-w-4xl max-h-[90vh] rounded-[32px] shadow-2xl relative z-10 flex flex-col overflow-hidden border border-slate-200">
+                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white w-full max-w-5xl max-h-[90vh] rounded-[40px] shadow-2xl relative z-10 flex flex-col overflow-hidden border border-slate-200">
                             
                             {/* Modal Header */}
-                            <div className="p-6 md:p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
-                                <div>
-                                    <h2 className="text-xl font-black text-slate-800">{selectedJob.title}</h2>
-                                    <p className="text-sm font-medium text-slate-500 mt-1">{selectedJob.Company?.companyName} &bull; {selectedJob.jobType}</p>
+                            <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm border border-slate-100 overflow-hidden">
+                                        {selectedJob.Company?.logo ? <img src={selectedJob.Company.logo} className="w-full h-full object-cover" /> : <Building2 className="text-slate-300" />}
+                                    </div>
+                                    <div>
+                                        <h2 className="text-xl font-black text-slate-800">{selectedJob.title}</h2>
+                                        <p className="text-sm font-bold text-indigo-600 uppercase tracking-widest">{selectedJob.Company?.companyName}</p>
+                                    </div>
                                 </div>
-                                <button onClick={() => setSelectedJob(null)} className="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-800 transition-all font-bold shadow-sm">✕</button>
+                                <button onClick={() => setSelectedJob(null)} className="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-800 transition-all font-bold">✕</button>
                             </div>
 
-                            {/* Modal Body (Scrollable) */}
-                            <div className="p-6 md:p-8 overflow-y-auto space-y-8 flex-1 custom-scrollbar">
-                                
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    <DetailBox label="Experience" value={selectedJob.experienceLevel} />
-                                    <DetailBox label="Schedule" value={selectedJob.workingSchedule || "Not specified"} />
-                                    <DetailBox label="App Limit" value={selectedJob.maxApplications || "Unlimited"} />
-                                    <DetailBox label="Urgent Hiring" value={selectedJob.isUrgent ? "Yes" : "No"} />
-                                </div>
-
-                                <div className="space-y-6">
-                                    <Section title="Job Overview" content={selectedJob.description} />
-                                    {selectedJob.responsibilities && <Section title="Responsibilities" content={selectedJob.responsibilities} />}
-                                    {selectedJob.requirements && <Section title="Requirements" content={selectedJob.requirements} />}
+                            {/* Modal Body */}
+                            <div className="flex-1 overflow-y-auto custom-scrollbar">
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 divide-x divide-slate-100 h-full">
                                     
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        {parseJSON(selectedJob.skills).length > 0 && (
-                                            <div className="space-y-3">
-                                                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Required Skills</h4>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {parseJSON(selectedJob.skills).map((s, i) => <span key={i} className="px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-bold">{s}</span>)}
-                                                </div>
-                                            </div>
-                                        )}
-                                        {parseJSON(selectedJob.benefits).length > 0 && (
-                                            <div className="space-y-3">
-                                                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Benefits & Perks</h4>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {parseJSON(selectedJob.benefits).map((b, i) => <span key={i} className="px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg text-xs font-bold">{b}</span>)}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {parseJSON(selectedJob.screeningQuestions).length > 0 && (
-                                        <div className="space-y-3">
-                                            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2"><AlertCircle size={14}/> Screening Questions</h4>
-                                            <div className="space-y-2 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                                                {parseJSON(selectedJob.screeningQuestions).map((q, i) => (
-                                                    <p key={i} className="text-sm font-medium text-slate-700">Q{i+1}: {q.question} <span className="text-[10px] text-slate-400 uppercase tracking-widest ml-2">({q.type})</span></p>
-                                                ))}
-                                            </div>
+                                    {/* Left: Job Details */}
+                                    <div className="p-8 space-y-8">
+                                        <div className="flex items-center justify-between">
+                                            <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2"><Briefcase size={16}/> Listing Overview</h4>
+                                            {getStatusBadge(selectedJob.status)}
                                         </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Modal Footer Actions */}
-                            <div className="p-6 border-t border-slate-100 bg-white shrink-0">
-                                {selectedJob.status === 'pending' ? (
-                                    <div className="space-y-4">
-                                        <textarea 
-                                            placeholder="If rejecting, please provide a reason for the recruiter to fix..."
-                                            value={rejectReason}
-                                            onChange={(e) => setRejectReason(e.target.value)}
-                                            rows={2}
-                                            className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-red-300 transition-all text-sm font-medium"
-                                        />
-                                        <div className="flex flex-col sm:flex-row gap-4">
-                                            <button 
-                                                onClick={() => handleReviewJob(selectedJob.id, 'reject')}
-                                                disabled={actionLoading}
-                                                className="flex-1 py-3.5 bg-white border border-rose-200 text-rose-600 rounded-2xl text-sm font-bold hover:bg-rose-50 hover:border-rose-300 transition-all flex items-center justify-center gap-2"
-                                            >
-                                                {actionLoading ? <Loader2 className="animate-spin" size={18}/> : <><XCircle size={18}/> Reject Job</>}
-                                            </button>
-                                            <button 
-                                                onClick={() => handleReviewJob(selectedJob.id, 'approve')}
-                                                disabled={actionLoading}
-                                                className="flex-1 py-3.5 bg-emerald-500 text-white rounded-2xl text-sm font-bold shadow-xl shadow-emerald-500/20 hover:bg-emerald-600 transition-all flex items-center justify-center gap-2"
-                                            >
-                                                {actionLoading ? <Loader2 className="animate-spin" size={18}/> : <><CheckCircle2 size={18}/> Approve & Publish</>}
-                                            </button>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-4">
-                                        <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                        <div className="space-y-6">
                                             <div>
-                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Current Status</p>
-                                                <div className="mt-1">{getStatusBadge(selectedJob.status)}</div>
+                                                <p className="text-xs font-bold text-slate-400 uppercase mb-2">Description</p>
+                                                <p className="text-sm text-slate-600 leading-relaxed font-medium bg-slate-50/50 p-4 rounded-2xl border border-slate-100">{selectedJob.description}</p>
                                             </div>
-                                            {selectedJob.status === 'rejected' && selectedJob.rejectionReason && (
-                                                <div className="text-right max-w-[60%]">
-                                                    <p className="text-[10px] font-bold text-rose-400 uppercase tracking-widest">Rejection Reason</p>
-                                                    <p className="text-xs font-medium text-rose-600 mt-1 truncate" title={selectedJob.rejectionReason}>{selectedJob.rejectionReason}</p>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase">Experience</p>
+                                                    <p className="text-xs font-bold text-slate-800">{selectedJob.experienceLevel}</p>
                                                 </div>
-                                            )}
+                                                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase">Salary Range</p>
+                                                    <p className="text-xs font-bold text-slate-800">₹{selectedJob.minSalary} - ₹{selectedJob.maxSalary}</p>
+                                                </div>
+                                            </div>
                                         </div>
-                                        
-                                        {selectedJob.status === 'active' && (
-                                            <div className="space-y-4 pt-4 border-t border-slate-100">
-                                                <div className="flex items-center gap-2 text-rose-600">
-                                                    <ShieldAlert size={16}/>
-                                                    <p className="text-xs font-bold uppercase tracking-tight">Administrative Control</p>
-                                                </div>
+
+                                        {/* Moderation Actions for Pending */}
+                                        {selectedJob.status === 'pending' && (
+                                            <div className="pt-6 border-t border-slate-100 space-y-4">
                                                 <textarea 
-                                                    placeholder="Reason for blocking this live job..."
+                                                    placeholder="Rejection reason (sent to recruiter)..."
                                                     value={rejectReason}
                                                     onChange={(e) => setRejectReason(e.target.value)}
-                                                    rows={2}
-                                                    className="w-full p-4 bg-rose-50/30 border border-rose-100 rounded-2xl outline-none focus:bg-white focus:border-rose-300 transition-all text-sm font-medium"
+                                                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white outline-none"
+                                                    rows={3}
                                                 />
-                                                <button 
-                                                    onClick={() => handleReviewJob(selectedJob.id, 'block')}
-                                                    disabled={actionLoading}
-                                                    className="w-full py-3 bg-rose-600 text-white rounded-2xl text-sm font-bold shadow-lg shadow-rose-100 hover:bg-rose-700 transition-all flex items-center justify-center gap-2"
-                                                >
-                                                    {actionLoading ? <Loader2 className="animate-spin" size={18}/> : "Block Live Listing"}
-                                                </button>
+                                                <div className="flex gap-4">
+                                                    <button onClick={() => handleReviewJob(selectedJob.id, 'reject')} className="flex-1 py-3 bg-rose-50 text-rose-600 rounded-xl text-xs font-bold uppercase">Reject</button>
+                                                    <button onClick={() => handleReviewJob(selectedJob.id, 'approve')} className="flex-1 py-3 bg-emerald-500 text-white rounded-xl text-xs font-bold uppercase shadow-lg shadow-emerald-200">Approve</button>
+                                                </div>
                                             </div>
                                         )}
                                     </div>
-                                )}
+
+                                    {/* Right: Real-time Applicants (Jo job me kisten apllicated ayea hai) */}
+                                    <div className="p-8 bg-slate-50/30">
+                                        <div className="flex items-center justify-between mb-6">
+                                            <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2"><Users size={16}/> Applied Candidates</h4>
+                                            <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-full">{applicants.length} Total</span>
+                                        </div>
+
+                                        {loadingApplicants ? (
+                                            <div className="py-20 text-center"><Loader2 className="animate-spin mx-auto text-slate-300" /></div>
+                                        ) : applicants.length === 0 ? (
+                                            <div className="py-20 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px] italic">No applicants for this job yet</div>
+                                        ) : (
+                                            <div className="space-y-3">
+                                                {applicants.map((app) => (
+                                                    <div key={app.id} className="p-4 bg-white border border-slate-100 rounded-2xl flex items-center justify-between shadow-sm">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100 overflow-hidden shrink-0">
+                                                                {app.Candidate?.profilePhoto ? <img src={app.Candidate.profilePhoto} className="w-full h-full object-cover" /> : <User size={18} className="text-slate-300" />}
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-sm font-bold text-slate-800">{app.Candidate?.fullName}</p>
+                                                                <p className="text-[10px] font-medium text-slate-400">{new Date(app.createdAt).toLocaleDateString()} • {app.Candidate?.email}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase ${
+                                                                app.status === 'hired' ? 'bg-emerald-50 text-emerald-600' :
+                                                                app.status === 'rejected' ? 'bg-rose-50 text-rose-600' :
+                                                                'bg-indigo-50 text-indigo-600'
+                                                            }`}>
+                                                                {app.status}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                </div>
                             </div>
 
                         </motion.div>
@@ -338,21 +307,5 @@ const AdminJobs = () => {
         </div>
     );
 };
-
-const DetailBox = ({ label, value }) => (
-    <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl">
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{label}</p>
-        <p className="text-sm font-bold text-slate-800 truncate">{value}</p>
-    </div>
-);
-
-const Section = ({ title, content }) => (
-    <div className="space-y-2">
-        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest">{title}</h4>
-        <div className="text-sm font-medium text-slate-700 leading-relaxed whitespace-pre-wrap bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
-            {content}
-        </div>
-    </div>
-);
 
 export default AdminJobs;
