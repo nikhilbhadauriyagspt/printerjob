@@ -5,6 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ADMIN_API_END_POINT, JOB_API_END_POINT } from '../../utils/constant';
 
+// Helper for resolving static assets in subdirectories like /job_portal/
+const getAssetUrl = (path) => {
+  const base = window.location.pathname.startsWith('/job_portal') ? '/job_portal' : '';
+  return `${base}${path}`;
+};
+
 const CandidateHero = () => {
   const [keyword, setKeyword] = useState('');
   const [location, setLocation] = useState('');
@@ -401,7 +407,7 @@ const CandidateHero = () => {
               className="relative flex justify-center lg:justify-end"
             >
               <img
-                src="/job_search_illustration.jpg?v=4"
+                src={getAssetUrl("/job_search_illustration.jpg?v=4")}
                 alt="Job Search Illustration"
                 className="w-full max-w-[460px] h-auto object-contain select-none pointer-events-none mix-blend-multiply contrast-[1.08] brightness-[1.02]"
               />
