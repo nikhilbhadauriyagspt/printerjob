@@ -145,8 +145,8 @@ export const googleLoginCandidate = async (req, res) => {
         return res.status(200).cookie("candidateToken", token, { 
             maxAge: 30 * 24 * 60 * 60 * 1000, 
             httpOnly: true, 
-            sameSite: 'lax', 
-            secure: false 
+            sameSite: 'none', 
+            secure: true 
         }).json({ 
             message: `Welcome back, ${candidate.fullName}`, 
             success: true, 
@@ -198,8 +198,8 @@ export const verifyCandidateOTP = async (req, res) => {
         return res.status(200).cookie("candidateToken", token, { 
             maxAge: 7 * 24 * 60 * 60 * 1000, 
             httpOnly: true, 
-            sameSite: 'lax', 
-            secure: false 
+            sameSite: 'none', 
+            secure: true 
         }).json({ 
             message: "Account verified", 
             success: true, 
@@ -220,8 +220,8 @@ export const loginCandidate = async (req, res) => {
         return res.status(200).cookie("candidateToken", token, { 
             maxAge: 7 * 24 * 60 * 60 * 1000, 
             httpOnly: true, 
-            sameSite: 'lax', 
-            secure: false 
+            sameSite: 'none', 
+            secure: true 
         }).json({ 
             message: `Welcome back, ${candidate.fullName}`, 
             success: true, 
@@ -505,6 +505,6 @@ export const getCandidateMe = async (req, res) => {
 
 // 🟢 Logout Candidate
 export const logoutCandidate = async (req, res) => {
-    try { return res.status(200).cookie("candidateToken", "", { maxAge: 0 }).json({ message: "Logged out successfully", success: true }); } 
+    try { return res.status(200).cookie("candidateToken", "", { maxAge: 0, httpOnly: true, sameSite: 'none', secure: true }).json({ message: "Logged out successfully", success: true }); } 
     catch (error) { return res.status(500).json({ message: "Logout Error", success: false }); }
 };

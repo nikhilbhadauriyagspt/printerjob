@@ -78,8 +78,8 @@ export const googleLogin = async (req, res) => {
         return res.status(200).cookie("companyToken", token, {
             maxAge: 30 * 24 * 60 * 60 * 1000,
             httpOnly: true,
-            sameSite: 'lax',
-            secure: false
+            sameSite: 'none',
+            secure: true
         }).json({
             message: `Welcome ${company.companyName}`,
             success: true,
@@ -331,7 +331,7 @@ export const verifyCompanyOTP = async (req, res) => {
         const token = jwt.sign({ companyId: company.id, role: 'company' }, process.env.JWT_SECRET, { expiresIn: '30d' });
 
         return res.status(200).cookie("companyToken", token, {
-            maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax', secure: false
+            maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'none', secure: true
         }).json({
             message: "Verified successfully", success: true, company: { 
                 id: company.id, 
@@ -460,7 +460,7 @@ export const loginCompany = async (req, res) => {
         const token = jwt.sign({ companyId: company.id, role: 'company' }, process.env.JWT_SECRET, { expiresIn: '30d' });
 
         return res.status(200).cookie("companyToken", token, {
-            maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax', secure: false
+            maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'none', secure: true
         }).json({
             message: `Welcome ${company.companyName}`, success: true, company: { 
                 id: company.id, 
@@ -936,7 +936,7 @@ export const getApplicantDetail = async (req, res) => {
 
 export const logoutCompany = async (req, res) => {
     try {
-        return res.status(200).cookie("companyToken", "", { maxAge: 0 }).json({ message: "Logged out", success: true });
+        return res.status(200).cookie("companyToken", "", { maxAge: 0, httpOnly: true, sameSite: 'none', secure: true }).json({ message: "Logged out", success: true });
     } catch (err) { res.status(500).json({ message: "Error", success: false }); }
 };
 

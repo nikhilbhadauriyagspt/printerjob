@@ -197,8 +197,8 @@ export const loginAdmin = async (req, res) => {
         return res.status(200).cookie("adminToken", token, {
             maxAge: 1 * 24 * 60 * 60 * 1000,
             httpOnly: true,
-            sameSite: 'strict',
-            secure: process.env.NODE_ENV === 'production'
+            sameSite: 'none',
+            secure: true
         }).json({
             message: `Welcome back, ${admin.fullName}`,
             admin: {
@@ -217,7 +217,7 @@ export const loginAdmin = async (req, res) => {
 
 export const logoutAdmin = async (req, res) => {
     try {
-        return res.status(200).cookie("adminToken", "", { maxAge: 0 }).json({
+        return res.status(200).cookie("adminToken", "", { maxAge: 0, httpOnly: true, sameSite: 'none', secure: true }).json({
             message: "Logged out successfully",
             success: true
         });
