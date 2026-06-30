@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { connectDB, sequelize } from './config/db.js';
+import bcrypt from 'bcryptjs';
 
 // Models
 import Candidate from './models/candidate.model.js';
@@ -231,6 +232,23 @@ const startServer = async () => {
         }
         await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
         console.log('Database synced successfully');
+
+        // Automatically seed admin if Admins table has no records
+        try {
+            const adminCount = await Admin.count();
+            if (adminCount === 0) {
+                const hashedPassword = await bcrypt.hash("admin123", 10);
+                await Admin.create({
+                    fullName: "Super Admin",
+                    email: "admin@jobportal.com",
+                    password: hashedPassword,
+                    role: 'super_admin'
+                });
+                console.log("Auto-Seed: Super Admin created successfully!");
+            }
+        } catch (adminErr) {
+            console.error("Auto-Seed Admin failed:", adminErr.message);
+        }
 
         app.listen(PORT, () => {
             console.log(`Server is running at http://localhost:${PORT}`);
