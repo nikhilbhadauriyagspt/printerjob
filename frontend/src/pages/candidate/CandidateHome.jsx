@@ -7,6 +7,12 @@ import CandidateLoginPopup from './CandidateLoginPopup';
 import { Briefcase, Twitter, Linkedin, Github, Facebook, Building2, Sparkles, ShieldCheck, Activity, Cpu, ChevronLeft, ChevronRight, MapPin, ArrowRight } from 'lucide-react';
 import { JOB_API_END_POINT } from '../../utils/constant';
 
+// Helper for resolving static assets in subdirectories like /job_portal/
+const getAssetUrl = (path) => {
+  const base = window.location.pathname.startsWith('/job_portal') ? '/job_portal' : '';
+  return `${base}${path}`;
+};
+
 const CandidateHome = () => {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [companies, setCompanies] = useState([]);
@@ -155,7 +161,7 @@ const CandidateHome = () => {
                 {/* 1. Card Top: Location Image */}
                 <div className="h-28 w-full overflow-hidden shrink-0">
                   <img 
-                    src={loc.image} 
+                    src={getAssetUrl(loc.image)} 
                     alt={loc.name} 
                     className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300" 
                   />
