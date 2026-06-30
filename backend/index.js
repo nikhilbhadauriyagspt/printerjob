@@ -107,6 +107,14 @@ const PORT = process.env.PORT || 3000;
 const startServer = async () => {
     try {
         await connectDB();
+
+        // Print existing database tables for diagnostics
+        try {
+            const [tables] = await sequelize.query("SHOW TABLES;");
+            console.log("DATABASE TABLES:", JSON.stringify(tables));
+        } catch (tableErr) {
+            console.error("Failed to show tables:", tableErr.message);
+        }
         
         // 🟢 Manual Migration: OTPs Table (Add candidateId & fix companyId)
         try {
