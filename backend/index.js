@@ -207,8 +207,10 @@ const startServer = async () => {
             console.log('Migration: CandidateInteractions table verified');
         } catch (err) { console.error('Interaction Migration failed:', err.message); }
 
-        // Final Sync (Safe)
+        // Final Sync (Safe with Foreign Key Checks disabled during creation)
+        await sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
         await sequelize.sync(); 
+        await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
         console.log('Database synced successfully');
 
         app.listen(PORT, () => {
