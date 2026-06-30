@@ -249,7 +249,9 @@ const appRouter = createBrowserRouter([
       }
     ]
   }
-]);
+], {
+  basename: window.location.pathname.startsWith('/job_portal') ? '/job_portal' : '/'
+});
 
 function App() {
   return (
